@@ -8,13 +8,13 @@ v0.0.1
 To install a particular version:
 
 ```
-pip install git+ssh://git@github.com/brandnetworks/datadog-flask-blueprint.git@0.0.1#egg=datadog_flask_blueprint
+pip install git+http://git@github.com/brandnetworks/datadog-flask-blueprint.git@0.0.1#egg=datadog_flask_blueprint
 ```
 
 To install via branch (while making sure to grab latest changes to that branch):
 
 ```
-pip install -e git+ssh://git@github.com/brandnetworks/datadog-flask-blueprint.git@master#egg=datadog_flask_blueprint
+pip install -e git+http://git@github.com/brandnetworks/datadog-flask-blueprint.git@master#egg=datadog_flask_blueprint
 ```
 
 Note: `-e` causes pip to install fresh via git. Without the `-e` subsequent pip installs will not get new changes.
