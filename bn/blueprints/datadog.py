@@ -10,17 +10,23 @@ from flask import Blueprint, request, session, current_app
 from dateutil import parser as dateparser
 from datadog import DogStatsd
 
-config = current_app.config['DOGSTATSD']
 
-DOGSTATSD_HOST = config['DOGSTATSD_HOST']
-DATADOG_PREFIX = config['DATADOG_PREFIX']
-DOGSTATSD_ENABLED = config.get('DOGSTATSD_ENABLED', True)
-DOGSTATSD_TAG_ALL_QUERY_PARAMS = config.get('DOGSTATSD_TAG_ALL_QUERY_PARAMS', False)
-ENVIRONMENT = config.get('ENVIRONMENT', 'None')
+class Config():
+    """Config."""
+
+    def __init__(self):
+        """__init__."""
+        config = current_app.config['DOGSTATSD']
+        self.DOGSTATSD_HOST = config['DOGSTATSD_HOST']
+        self.DATADOG_PREFIX = config['DATADOG_PREFIX']
+        self.DOGSTATSD_ENABLED = config.get('DOGSTATSD_ENABLED', True)
+        self.DOGSTATSD_TAG_ALL_QUERY_PARAMS = config.get('DOGSTATSD_TAG_ALL_QUERY_PARAMS', False)
+        self.ENVIRONMENT = config.get('ENVIRONMENT', 'None')
+
 
 def get_statsd():
     """Return statsd client."""
-    return DogStatsd(host=DOGSTATSD_HOST)
+    return DogStatsd(host=Config().DOGSTATSD_HOST)
 
 
 class DatadogBlueprint(Blueprint):
@@ -77,7 +83,7 @@ class DatadogBlueprint(Blueprint):
     @classmethod
     def datadog_after_request(cls, metric, req_tag_func, response):
         """Datadog after request."""
-        prefix = DATADOG_BLUEPRINT_PREFIX
+        prefix = Config().DATADOG_BLUEPRINT_PREFIX
         if metric:
             metric = prefix + metric
         else:
@@ -97,8 +103,8 @@ class DatadogBlueprint(Blueprint):
             start = session.get('datadog', {}).get('start')
             dt = int((time.time() - start) * 1000)
             # Need to get statsd
-            if DOGSTATSD_ENABLED:
-                environment = str(ENVIRONMENT).lower()
+            if Config().DOGSTATSD_ENABLED:
+                environment = str(Config().ENVIRONMENT).lower()
                 tags += 'app:content_service'
                 tags += 'environment:' + environment
                 statsd = get_statsd()
@@ -146,7 +152,7 @@ class DatadogBlueprint(Blueprint):
         tags = []
         keys = [key for key, _ in request.args.items()]
         filtered_keys = keys
-        if not DOGSTATSD_TAG_ALL_QUERY_PARAMS:
+        if not Config().DOGSTATSD_TAG_ALL_QUERY_PARAMS:
             filtered_keys = list(set(valid_query_params).intersection(set(keys)))
         for key in filtered_keys:
             value_list = request.args.getlist(key)
