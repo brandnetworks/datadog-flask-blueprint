@@ -10,10 +10,17 @@ from flask import Blueprint, request, session, current_app
 from dateutil import parser as dateparser
 from datadog import DogStatsd
 
+config = current_app.config['DOGSTATSD']
+
+DOGSTATSD_HOST = config['DOGSTATSD_HOST']
+DATADOG_PREFIX = config['DATADOG_PREFIX']
+DOGSTATSD_ENABLED = config.get('DOGSTATSD_ENABLED', True)
+DOGSTATSD_TAG_ALL_QUERY_PARAMS = config.get('DOGSTATSD_TAG_ALL_QUERY_PARAMS', False)
+ENVIRONMENT = config.get('ENVIRONMENT', 'None')
 
 def get_statsd():
     """Return statsd client."""
-    return DogStatsd(host=current_app.settings.DOGSTATSD_HOST)
+    return DogStatsd(host=DOGSTATSD_HOST)
 
 
 class DatadogBlueprint(Blueprint):
@@ -70,7 +77,7 @@ class DatadogBlueprint(Blueprint):
     @classmethod
     def datadog_after_request(cls, metric, req_tag_func, response):
         """Datadog after request."""
-        prefix = current_app.settings.DATADOG_BLUEPRINT_PREFIX
+        prefix = DATADOG_BLUEPRINT_PREFIX
         if metric:
             metric = prefix + metric
         else:
@@ -90,8 +97,8 @@ class DatadogBlueprint(Blueprint):
             start = session.get('datadog', {}).get('start')
             dt = int((time.time() - start) * 1000)
             # Need to get statsd
-            if current_app.settings.DOGSTATSD_ENABLED:
-                environment = str(current_app.settings.MODE).lower()
+            if DOGSTATSD_ENABLED:
+                environment = str(ENVIRONMENT).lower()
                 tags += 'app:content_service'
                 tags += 'environment:' + environment
                 statsd = get_statsd()
@@ -139,7 +146,7 @@ class DatadogBlueprint(Blueprint):
         tags = []
         keys = [key for key, _ in request.args.items()]
         filtered_keys = keys
-        if not current_app.settings.DOGSTATSD_TAG_ALL_QUERY_PARAMS:
+        if not DOGSTATSD_TAG_ALL_QUERY_PARAMS:
             filtered_keys = list(set(valid_query_params).intersection(set(keys)))
         for key in filtered_keys:
             value_list = request.args.getlist(key)
