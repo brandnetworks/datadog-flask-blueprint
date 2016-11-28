@@ -1,7 +1,7 @@
 # datadog-flask-blueprint
 A blueprint class for sending metrics to Datadog.
 
-v0.0.1
+v0.0.2
 
 ## Install 
 
