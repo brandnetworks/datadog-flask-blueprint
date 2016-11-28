@@ -17,16 +17,16 @@ class Config():
     def __init__(self):
         """__init__."""
         config = current_app.config['DOGSTATSD']
-        self.DOGSTATSD_HOST = config['DOGSTATSD_HOST']
-        self.DATADOG_PREFIX = config['DATADOG_PREFIX']
-        self.DOGSTATSD_ENABLED = config.get('DOGSTATSD_ENABLED', True)
-        self.DOGSTATSD_TAG_ALL_QUERY_PARAMS = config.get('DOGSTATSD_TAG_ALL_QUERY_PARAMS', False)
+        self.HOST = config['HOST']
+        self.PREFIX = config['PREFIX']
+        self.ENABLED = config.get('ENABLED', True)
+        self.TAG_ALL_QUERY_PARAMS = config.get('TAG_ALL_QUERY_PARAMS', False)
         self.ENVIRONMENT = config.get('ENVIRONMENT', 'None')
 
 
 def get_statsd():
     """Return statsd client."""
-    return DogStatsd(host=Config().DOGSTATSD_HOST)
+    return DogStatsd(host=Config().HOST)
 
 
 class DatadogBlueprint(Blueprint):
@@ -83,7 +83,7 @@ class DatadogBlueprint(Blueprint):
     @classmethod
     def datadog_after_request(cls, metric, req_tag_func, response):
         """Datadog after request."""
-        prefix = Config().DATADOG_BLUEPRINT_PREFIX
+        prefix = Config().PREFIX
         if metric:
             metric = prefix + metric
         else:
@@ -103,7 +103,7 @@ class DatadogBlueprint(Blueprint):
             start = session.get('datadog', {}).get('start')
             dt = int((time.time() - start) * 1000)
             # Need to get statsd
-            if Config().DOGSTATSD_ENABLED:
+            if Config().ENABLED:
                 environment = str(Config().ENVIRONMENT).lower()
                 tags += 'app:content_service'
                 tags += 'environment:' + environment
@@ -152,7 +152,7 @@ class DatadogBlueprint(Blueprint):
         tags = []
         keys = [key for key, _ in request.args.items()]
         filtered_keys = keys
-        if not Config().DOGSTATSD_TAG_ALL_QUERY_PARAMS:
+        if not Config().TAG_ALL_QUERY_PARAMS:
             filtered_keys = list(set(valid_query_params).intersection(set(keys)))
         for key in filtered_keys:
             value_list = request.args.getlist(key)
