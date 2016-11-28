@@ -81,7 +81,7 @@ class DatadogBlueprint(Blueprint):
             }
 
     @classmethod
-    def datadog_after_request(cls, metric, req_tag_func, response):
+    def datadog_after_request(cls, metric, res_tag_func, response):
         """Datadog after request."""
         prefix = Config().PREFIX
         if metric:
@@ -95,8 +95,8 @@ class DatadogBlueprint(Blueprint):
                 response_dict = json.loads(response.get_data(as_text=True))
             except:
                 pass
-            if req_tag_func:
-                result_tags = req_tag_func(response_dict)
+            if res_tag_func:
+                result_tags = res_tag_func(response_dict)
             tags = session.get('datadog', {}).get('tags', []) + result_tags
             tags += cls.get_tags_from_response(response, response_dict)
 
