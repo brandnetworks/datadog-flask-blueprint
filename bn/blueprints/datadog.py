@@ -144,8 +144,8 @@ class DatadogBlueprint(Blueprint):
             response_size = len(response_dict['data'])
             tags.append('response_data.length:' + str(response_size))
             tags.append('response_data.length.bucket:' + cls.bucket(response_size))
-        if response_dict and 'error' in response_dict:
-            errors = response_dict['error']
+        if response_dict and ('error' in response_dict or 'errors' in response_dict):
+            errors = response_dict.get('error', response_dict.get('errors'))
             if not isinstance(errors, list):
                 errors = [errors]
             error_size = len(errors)
@@ -155,6 +155,8 @@ class DatadogBlueprint(Blueprint):
             for error in errors:
                 if 'message' in error and isinstance(error, str):
                     tags.append('errors.message:' + error['message'][:50])
+                if 'details' in error and isinstance(error, str):
+                    tags.append('errors.details:' + error['details'][:50])
         return tags
 
     @classmethod
