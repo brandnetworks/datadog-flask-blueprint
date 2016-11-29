@@ -105,8 +105,8 @@ class DatadogBlueprint(Blueprint):
             # Need to get statsd
             if Config().ENABLED:
                 environment = str(Config().ENVIRONMENT).lower()
-                tags += 'app:content_service'
-                tags += 'environment:' + environment
+                tags.append('app:content_service')
+                tags.append('environment:' + environment)
                 statsd = get_statsd()
                 statsd.timing(metric, dt, tags=tags)
                 statsd.increment(metric + '.response_code.' + str(response.status_code), 1, tags)
