@@ -1,14 +1,14 @@
 # datadog-flask-blueprint
 A blueprint class for sending metrics to Datadog.
 
-v0.0.2
+v0.0.3
 
 ## Install 
 
 To install a particular version:
 
 ```
-pip install git+http://git@github.com/brandnetworks/datadog-flask-blueprint.git@0.0.1#egg=datadog_flask_blueprint
+pip install git+http://git@github.com/brandnetworks/datadog-flask-blueprint.git@0.0.3#egg=datadog_flask_blueprint
 ```
 
 To install via branch (while making sure to grab latest changes to that branch):
